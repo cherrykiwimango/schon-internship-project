@@ -28,6 +28,8 @@ pub struct Book {
 #[derive(Debug, Serialize)]
 pub struct BorrowedBook {
     pub borrowed_id: i64,
+    pub user_id: i64,
+    pub username: String,
     pub due_date: String,
     pub book: Book,
 }
@@ -330,7 +332,6 @@ impl Database {
         Ok(affected_row > 0)
     }
 
-    /*understand this bit of code */
     pub fn fetch_users(&self) -> Result<Vec<Value>, String> {
         let conn = self.connection.lock().unwrap();
 
@@ -409,11 +410,15 @@ impl Database {
             "SELECT 
             br.id, 
             br.due_date, 
+            br.user_id,
+            u.username,
             b.id, b.title, b.author, b.isbn, b.publication_year, b.genre, b.number_of_copies
          FROM 
             borrowed br
          JOIN 
             books b ON br.book_id = b.id
+         JOIN 
+            users u ON br.user_id = u.id
          WHERE 
             br.user_id = ?1",
         )?;
@@ -423,14 +428,16 @@ impl Database {
                 Ok(BorrowedBook {
                     borrowed_id: row.get(0)?,
                     due_date: row.get(1)?,
+                    user_id: row.get(2)?,
+                    username: row.get(3)?,
                     book: Book {
-                        id: row.get(2)?,
-                        title: row.get(3)?,
-                        author: row.get(4)?,
-                        isbn: row.get(5)?,
-                        publication_year: row.get(6)?,
-                        genre: row.get(7)?,
-                        number_of_copies: row.get(8)?,
+                        id: row.get(4)?,
+                        title: row.get(5)?,
+                        author: row.get(6)?,
+                        isbn: row.get(7)?,
+                        publication_year: row.get(8)?,
+                        genre: row.get(9)?,
+                        number_of_copies: row.get(10)?,
                     },
                 })
             })?
@@ -465,11 +472,15 @@ impl Database {
             "SELECT 
             br.id, 
             br.due_date, 
+            br.user_id,
+            u.username,
             b.id, b.title, b.author, b.isbn, b.publication_year, b.genre, b.number_of_copies
          FROM 
             borrowed br
          JOIN 
-            books b ON br.book_id = b.id",
+            books b ON br.book_id = b.id
+         JOIN 
+            users u ON br.user_id = u.id",
         )?;
 
         let borrowed_books = stmt
@@ -477,14 +488,16 @@ impl Database {
                 Ok(BorrowedBook {
                     borrowed_id: row.get(0)?,
                     due_date: row.get(1)?,
+                    user_id: row.get(2)?,
+                    username: row.get(3)?,
                     book: Book {
-                        id: row.get(2)?,
-                        title: row.get(3)?,
-                        author: row.get(4)?,
-                        isbn: row.get(5)?,
-                        publication_year: row.get(6)?,
-                        genre: row.get(7)?,
-                        number_of_copies: row.get(8)?,
+                        id: row.get(4)?,
+                        title: row.get(5)?,
+                        author: row.get(6)?,
+                        isbn: row.get(7)?,
+                        publication_year: row.get(8)?,
+                        genre: row.get(9)?,
+                        number_of_copies: row.get(10)?,
                     },
                 })
             })?

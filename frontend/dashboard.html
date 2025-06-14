@@ -10,9 +10,17 @@
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       protectUserRoute();
+
+      const userName = localStorage.getItem('userName');
+      if (userName) {
+        const welcomeElement = document.getElementById('welcomeMessage');
+        if (welcomeElement) {
+          welcomeElement.textContent = `Welcome, ${userName}!`;
+        }
+      }
     });
   </script>
-  <h1>Welcome User</h1>
+  <h1 id="welcomeMessage">Welcome</h1>
   <p>This is the user dashboard</p>
   <a href="browse_books.html">Browse Books</a>
   <a href="borrow_details.html">Borrow Details</a>

@@ -27,6 +27,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       bookDiv.innerHTML = `
         <span style="font-size:20px;"><strong>${book.book.title}</strong><br></span>
+        Borrowed by: ${book.username}<br><br>
         Author: ${book.book.author}<br><br>
         Year: ${book.book.publication_year}&nbsp;&nbsp;
         Genre: ${book.book.genre}&nbsp;&nbsp;
