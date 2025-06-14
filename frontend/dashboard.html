@@ -3,13 +3,21 @@
 
 <head>
   <title>Dashboard</title>
+  <script src="js/auth.js"></script>
 </head>
 
 <body>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      protectUserRoute();
+    });
+  </script>
   <h1>Welcome User</h1>
   <p>This is the user dashboard</p>
   <a href="browse_books.html">Browse Books</a>
   <a href="borrow_details.html">Borrow Details</a>
+  <br><br>
+  <button onclick="logout()">Logout</button>
 </body>
 
 </html>

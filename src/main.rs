@@ -1,3 +1,4 @@
+use dotenv::dotenv;
 use project::{ThreadPool, db::Database, handlers};
 use std::fs;
 use std::{
@@ -6,6 +7,8 @@ use std::{
 };
 
 fn main() {
+    //load the env file
+    dotenv().ok();
     // Initialize database
     let db = Database::new("project.db").expect("Failed to initialize database");
     println!("Database initialized successfully");
@@ -337,6 +340,14 @@ fn handle_connection(mut stream: TcpStream, db: Database) {
                 ),
             }
         }
+        ("GET", "/js/auth.js") => match fs::read_to_string("frontend/js/auth.js") {
+            Ok(js) => ("HTTP/1.1 200 OK", js, "application/javascript"),
+            Err(_) => (
+                "HTTP/1.1 404 NOT FOUND",
+                "console.error('JS file not found');".to_string(),
+                "application/javascript",
+            ),
+        },
         //default case
         _ => (
             "HTTP/1.1 404 NOT FOUND",

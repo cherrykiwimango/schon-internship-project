@@ -3,9 +3,15 @@
 
 <head>
   <title>Users</title>
+  <script src="js/auth.js"></script>
 </head>
 
 <body>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      protectAdminRoute();
+    });
+  </script>
   <h1>List of Users</h1>
   <div id="users-list">
 

@@ -3,9 +3,16 @@
 
 <head>
   <title>Login</title>
+  <script src="js/auth.js"></script>
 </head>
 
 <body>
+  <script>
+    // Check if user is already logged in when page loads
+    document.addEventListener('DOMContentLoaded', function () {
+      redirectIfAuthenticated();
+    });
+  </script>
   <h1>Login</h1>
   <p>Don't have an account yet? <a href="signup.html">Sign up</a></p>
   <form>

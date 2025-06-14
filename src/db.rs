@@ -1,7 +1,12 @@
+use bcrypt::{DEFAULT_COST, hash, verify};
+use jsonwebtoken::{EncodingKey, Header, encode};
+use rusqlite::Error as RusqliteError;
+use rusqlite::Result;
 use rusqlite::params;
 use rusqlite::{Connection, Result as SqliteResult};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
+use std::env;
 use std::sync::{Arc, Mutex};
 
 #[derive(Clone)]
@@ -25,6 +30,13 @@ pub struct BorrowedBook {
     pub borrowed_id: i64,
     pub due_date: String,
     pub book: Book,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct Claims {
+    sub: String, // subject, like username or user ID
+    role: String,
+    exp: usize, // expiration timestamp
 }
 
 impl Database {
@@ -88,10 +100,14 @@ impl Database {
             return Ok(false);
         }
 
-        //hash the password later
+        let hashed_password = match hash(password, DEFAULT_COST) {
+            Ok(pwd) => pwd,
+            Err(_) => return Ok(false), // You may choose to return an error instead
+        };
+
         conn.execute(
             "INSERT INTO users (username, password) VALUES (?1, ?2)",
-            [username, password],
+            [username, &hashed_password],
         )?;
 
         Ok(true)
@@ -101,24 +117,48 @@ impl Database {
         &self,
         username: &str,
         password: &str,
-    ) -> SqliteResult<Option<(i32, String, String)>> {
+    ) -> SqliteResult<Option<(i32, String, String, String)>> {
         let conn = self.connection.lock().unwrap();
         let mut stmt =
             conn.prepare("SELECT id, username, password, role FROM users WHERE username = ?1")?;
 
-        match stmt.query_row([username], |row| {
+        match stmt.query_row(params![username], |row| {
             let user_id: i32 = row.get(0)?;
             let stored_username: String = row.get(1)?;
-            let stored_password: String = row.get(2)?;
+            let stored_password_hash: String = row.get(2)?;
             let role: String = row.get(3)?;
-            if stored_password == password {
-                Ok(Some((user_id, stored_username, role)))
+
+            let password_matches =
+                verify(password, &stored_password_hash).map_err(|_| RusqliteError::InvalidQuery)?;
+
+            if password_matches {
+                let expiration = std::time::SystemTime::now()
+                    .duration_since(std::time::UNIX_EPOCH)
+                    .unwrap()
+                    .as_secs()
+                    + 3600; // 1 hour expiration
+
+                let claims = Claims {
+                    sub: stored_username.clone(),
+                    role: role.clone(),
+                    exp: expiration as usize,
+                };
+
+                let jwt_secret = env::var("JWT_SECRET").map_err(|_| RusqliteError::InvalidQuery)?;
+                let token = encode(
+                    &Header::default(),
+                    &claims,
+                    &EncodingKey::from_secret(jwt_secret.as_bytes()),
+                )
+                .map_err(|_| RusqliteError::InvalidQuery)?;
+
+                Ok(Some((user_id, stored_username, role, token)))
             } else {
                 Ok(None)
             }
         }) {
             Ok(result) => Ok(result),
-            Err(rusqlite::Error::QueryReturnedNoRows) => Ok(None),
+            Err(RusqliteError::QueryReturnedNoRows) => Ok(None),
             Err(e) => Err(e),
         }
     }

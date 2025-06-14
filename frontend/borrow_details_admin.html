@@ -3,9 +3,15 @@
 
 <head>
   <title>Borrow Details</title>
+  <script src="js/auth.js"></script>
 </head>
 
 <body>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      protectAdminRoute();
+    });
+  </script>
   <h1> Borrow Details</h1>
   <div id="books-container"></div>
   <br><br>

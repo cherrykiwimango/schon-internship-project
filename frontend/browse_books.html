@@ -3,9 +3,15 @@
 
 <head>
   <title>Browse Library</title>
+  <script src="js/auth.js"></script>
 </head>
 
 <body>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      protectUserRoute();
+    });
+  </script>
   <h1>Browse Library</h1>
   <div id="books-container"></div>
   <br><br>

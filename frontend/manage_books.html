@@ -3,9 +3,15 @@
 
 <head>
   <title>Manage Books</title>
+  <script src="js/auth.js"></script>
 </head>
 
 <body>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      protectAdminRoute();
+    });
+  </script>
   <h1>Manage Books</h1>
   <div id="books-container"></div>
   <a href="create_book.html">Add New Book</a>

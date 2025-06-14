@@ -24,9 +24,11 @@ document.addEventListener('DOMContentLoaded', function () {
         const userRole = data.role;
         const userName = data.username;
         const userId = data.userId;
+        const jwt = data.jwt;
         localStorage.setItem('userRole', userRole);
         localStorage.setItem('userName', userName);
         localStorage.setItem('userId', userId);
+        localStorage.setItem('jwt', jwt);
 
         if (userRole == "admin") {
           window.location.href = 'admin_dashboard.html';

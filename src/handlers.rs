@@ -77,10 +77,10 @@ pub fn handle_login(request_body: &str, db: &Database) -> (&'static str, String)
 
     // Verify user credentials
     match db.verify_user(username, password) {
-        Ok(Some((user_id, username, role))) => {
+        Ok(Some((user_id, username, role, jwt))) => {
             let response = format!(
-                r#"{{"success": true, "message": "Login successful", "userId": "{}", "username": "{}", "role": "{}"}}"#,
-                user_id, username, role
+                r#"{{"success": true, "message": "Login successful", "userId": "{}", "username": "{}", "role": "{}", "jwt": "{}"}}"#,
+                user_id, username, role, jwt
             );
             ("HTTP/1.1 200 OK", response)
         }
