@@ -262,6 +262,7 @@ CREATE TABLE borrowed (
 │       ├── auth.js ..and so on
 │   └── styles.css
 ├── Cargo.toml             # Rust dependencies
+├── Project.db             #sqlite db folder
 └── README.md              # This file
 ```
 ## 🔧 Architecture Details
