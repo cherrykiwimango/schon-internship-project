@@ -112,6 +112,54 @@ fn handle_connection(mut stream: TcpStream, db: Database) {
                 ),
             }
         }
+        //borrow book apis
+        ("POST", "/api/borrow") => {
+            let (status, body) = handlers::handle_borrow_book(&request_body, &db);
+            (status, body, "application/json")
+        }
+        ("GET", path) if path.starts_with("/api/borrow/") => {
+            let id_part = path.trim_start_matches("/api/borrow/");
+            match id_part.parse::<i64>() {
+                Ok(user_id) => {
+                    let (status, body) = handlers::handle_fetch_borrowed_books(user_id, &db);
+                    (status, body, "application/json")
+                }
+                Err(_) => (
+                    "HTTP/1.1 400 Bad Request",
+                    r#"{ "success": false, "message": "Invalid ID" }"#.to_string(),
+                    "application/json",
+                ),
+            }
+        }
+        ("GET", "/api/borrow") => {
+            let (status, body) = handlers::handle_fetch_all_borrowed_books(&db);
+            (status, body, "application/json")
+        }
+        ("DELETE", path) if path.starts_with("/api/borrow/") => {
+            let parts: Vec<&str> = path.trim_start_matches("/api/borrow/").split("/").collect();
+            if parts.len() == 2 {
+                if let (Ok(borrowed_id), Ok(book_id)) =
+                    (parts[0].parse::<i64>(), parts[1].parse::<i64>())
+                {
+                    let (status, body) = handlers::handle_return_book(borrowed_id, book_id, &db);
+                    (status, body, "application/json")
+                } else {
+                    let error = r#"{"success":false, "message":"Invalid IDs"}"#;
+                    (
+                        "HTTP/1.1 400 Bad Request",
+                        error.to_string(),
+                        "application/json",
+                    )
+                }
+            } else {
+                let error = r#"{"success": false, "message": "Invalid path"}"#;
+                (
+                    "HTTP/1.1 400 Bad Request",
+                    error.to_string(),
+                    "application/json",
+                )
+            }
+        }
         // HTML pages
         //login and signup
         ("GET", "/login.html") => match fs::read_to_string("frontend/login.html") {
@@ -123,15 +171,6 @@ fn handle_connection(mut stream: TcpStream, db: Database) {
             ),
         },
         ("GET", "/signup.html") => match fs::read_to_string("frontend/signup.html") {
-            Ok(html) => ("HTTP/1.1 200 OK", html, "text/html"),
-            Err(_) => (
-                "HTTP/1.1 404 NOT FOUND",
-                "<h1>404 Page Not Found</h1>".to_string(),
-                "text/html",
-            ),
-        },
-        //user functions
-        ("GET", "/dashboard.html") => match fs::read_to_string("frontend/dashboard.html") {
             Ok(html) => ("HTTP/1.1 200 OK", html, "text/html"),
             Err(_) => (
                 "HTTP/1.1 404 NOT FOUND",
@@ -167,6 +206,50 @@ fn handle_connection(mut stream: TcpStream, db: Database) {
             ),
         },
         ("GET", "/edit_book.html") => match fs::read_to_string("frontend/edit_book.html") {
+            Ok(html) => ("HTTP/1.1 200 OK", html, "text/html"),
+            Err(_) => (
+                "HTTP/1.1 404 NOT FOUND",
+                "<h1>404 Page Not Found</h1>".to_string(),
+                "text/html",
+            ),
+        },
+        ("GET", "/users.html") => match fs::read_to_string("frontend/users.html") {
+            Ok(html) => ("HTTP/1.1 200 OK", html, "text/html"),
+            Err(_) => (
+                "HTTP/1.1 404 NOT FOUND",
+                "<h1>404 Page Not Found</h1>".to_string(),
+                "text/html",
+            ),
+        },
+        ("GET", "/borrow_details_admin.html") => {
+            match fs::read_to_string("frontend/borrow_details_admin.html") {
+                Ok(html) => ("HTTP/1.1 200 OK", html, "text/html"),
+                Err(_) => (
+                    "HTTP/1.1 404 NOT FOUND",
+                    "<h1>404 Page Not Found</h1>".to_string(),
+                    "text/html",
+                ),
+            }
+        }
+        //user functions
+        ("GET", "/dashboard.html") => match fs::read_to_string("frontend/dashboard.html") {
+            Ok(html) => ("HTTP/1.1 200 OK", html, "text/html"),
+            Err(_) => (
+                "HTTP/1.1 404 NOT FOUND",
+                "<h1>404 Page Not Found</h1>".to_string(),
+                "text/html",
+            ),
+        },
+        ("GET", "/browse_books.html") => match fs::read_to_string("frontend/browse_books.html") {
+            Ok(html) => ("HTTP/1.1 200 OK", html, "text/html"),
+            Err(_) => (
+                "HTTP/1.1 404 NOT FOUND",
+                "<h1>404 Page Not Found</h1>".to_string(),
+                "text/html",
+            ),
+        },
+        ("GET", "/borrow_details.html") => match fs::read_to_string("frontend/borrow_details.html")
+        {
             Ok(html) => ("HTTP/1.1 200 OK", html, "text/html"),
             Err(_) => (
                 "HTTP/1.1 404 NOT FOUND",
@@ -217,6 +300,43 @@ fn handle_connection(mut stream: TcpStream, db: Database) {
                 "application/javascript",
             ),
         },
+        //user function and CRUD operations
+        ("GET", "/js/users.js") => match fs::read_to_string("frontend/js/users.js") {
+            Ok(js) => ("HTTP/1.1 200 OK", js, "application/javascript"),
+            Err(_) => (
+                "HTTP/1.1 404 NOT FOUND",
+                "console.error('JS file not found');".to_string(),
+                "application/javascript",
+            ),
+        },
+        ("GET", "/js/browse_books.js") => match fs::read_to_string("frontend/js/browse_books.js") {
+            Ok(js) => ("HTTP/1.1 200 OK", js, "application/javascript"),
+            Err(_) => (
+                "HTTP/1.1 404 NOT FOUND",
+                "console.error('JS file not found');".to_string(),
+                "application/javascript",
+            ),
+        },
+        ("GET", "/js/borrow_details.js") => {
+            match fs::read_to_string("frontend/js/borrow_details.js") {
+                Ok(js) => ("HTTP/1.1 200 OK", js, "application/javascript"),
+                Err(_) => (
+                    "HTTP/1.1 404 NOT FOUND",
+                    "console.error('JS file not found');".to_string(),
+                    "application/javascript",
+                ),
+            }
+        }
+        ("GET", "/js/borrow_details_admin.js") => {
+            match fs::read_to_string("frontend/js/borrow_details_admin.js") {
+                Ok(js) => ("HTTP/1.1 200 OK", js, "application/javascript"),
+                Err(_) => (
+                    "HTTP/1.1 404 NOT FOUND",
+                    "console.error('JS file not found');".to_string(),
+                    "application/javascript",
+                ),
+            }
+        }
         //default case
         _ => (
             "HTTP/1.1 404 NOT FOUND",

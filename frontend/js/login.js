@@ -23,8 +23,10 @@ document.addEventListener('DOMContentLoaded', function () {
       if (response.ok) {
         const userRole = data.role;
         const userName = data.username;
+        const userId = data.userId;
         localStorage.setItem('userRole', userRole);
         localStorage.setItem('userName', userName);
+        localStorage.setItem('userId', userId);
 
         if (userRole == "admin") {
           window.location.href = 'admin_dashboard.html';

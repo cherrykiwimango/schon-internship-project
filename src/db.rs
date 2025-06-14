@@ -18,12 +18,19 @@ pub struct Book {
     pub publication_year: String,
     pub genre: String,
     pub number_of_copies: i32,
-    pub available: bool,
+}
+
+#[derive(Debug, Serialize)]
+pub struct BorrowedBook {
+    pub borrowed_id: i64,
+    pub due_date: String,
+    pub book: Book,
 }
 
 impl Database {
     pub fn new(db_path: &str) -> SqliteResult<Self> {
         let conn = Connection::open(db_path)?;
+        conn.execute("PRAGMA foreign_keys = ON;", [])?;
 
         // Create users table if it doesn't exist
         conn.execute(
@@ -47,8 +54,21 @@ impl Database {
             publication_year TEXT NOT NULL,
             genre TEXT NOT NULL,
             number_of_copies INTEGER NOT NULL DEFAULT 1,
-            available BOOLEAN NOT NULL DEFAULT 1,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )",
+            [],
+        )?;
+
+        //create borrowed table if it doesn't exist
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS borrowed (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            book_id INTEGER NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            due_date DATETIME GENERATED ALWAYS AS (DATETIME(created_at, '+7 days')) STORED,
+            FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY(book_id) REFERENCES books(id) ON DELETE CASCADE
         )",
             [],
         )?;
@@ -81,17 +101,18 @@ impl Database {
         &self,
         username: &str,
         password: &str,
-    ) -> SqliteResult<Option<(String, String)>> {
+    ) -> SqliteResult<Option<(i32, String, String)>> {
         let conn = self.connection.lock().unwrap();
         let mut stmt =
-            conn.prepare("SELECT username, password, role FROM users WHERE username = ?1")?;
+            conn.prepare("SELECT id, username, password, role FROM users WHERE username = ?1")?;
 
         match stmt.query_row([username], |row| {
-            let stored_username: String = row.get(0)?;
-            let stored_password: String = row.get(1)?;
-            let role: String = row.get(2)?;
+            let user_id: i32 = row.get(0)?;
+            let stored_username: String = row.get(1)?;
+            let stored_password: String = row.get(2)?;
+            let role: String = row.get(3)?;
             if stored_password == password {
-                Ok(Some((stored_username, role)))
+                Ok(Some((user_id, stored_username, role)))
             } else {
                 Ok(None)
             }
@@ -132,7 +153,7 @@ impl Database {
         let conn = self.connection.lock().unwrap();
 
         let mut stmt = match conn.prepare(
-            "SELECT id, title, author, isbn, publication_year, genre, number_of_copies, available FROM books",
+            "SELECT id, title, author, isbn, publication_year, genre, number_of_copies FROM books",
         ) {
             Ok(stmt) => stmt,
             Err(_) => return Err("Failed to prepare statement".to_string()),
@@ -147,7 +168,6 @@ impl Database {
                 publication_year: row.get(4)?,
                 genre: row.get(5)?,
                 number_of_copies: row.get(6)?,
-                available: row.get(7)?,
             })
         }) {
             Ok(rows) => rows,
@@ -169,7 +189,7 @@ impl Database {
         let conn = self.connection.lock().unwrap();
 
         let mut stmt = match conn.prepare(
-            "SELECT id, title, author, isbn, publication_year, genre, number_of_copies, available FROM books WHERE id = ?1",
+            "SELECT id, title, author, isbn, publication_year, genre, number_of_copies, FROM books WHERE id = ?1",
         ) {
             Ok(stmt) => stmt,
             Err(_) => return Err("Failed to prepare statement".to_string()),
@@ -184,7 +204,6 @@ impl Database {
                 publication_year: row.get(4)?,
                 genre: row.get(5)?,
                 number_of_copies: row.get(6)?,
-                available: row.get(7)?,
             })
         }) {
             Ok(rows) => rows,
@@ -259,6 +278,13 @@ impl Database {
     pub fn delete_book(&self, book_id: i64) -> SqliteResult<bool> {
         let conn = self.connection.lock().unwrap();
 
+        let mut stmt = conn.prepare("SELECT 1 FROM borrowed WHERE book_id = ?")?;
+        let mut rows = stmt.query(params![book_id])?;
+
+        if rows.next()?.is_some() {
+            return Ok(false);
+        }
+
         let affected_row = conn.execute("DELETE FROM books WHERE id=?", params![book_id])?;
 
         Ok(affected_row > 0)
@@ -290,5 +316,139 @@ impl Database {
         }
 
         Ok(users)
+    }
+
+    pub fn borrow_book(&self, user_id: i64, book_id: i64) -> SqliteResult<bool> {
+        let conn = self.connection.lock().unwrap();
+
+        let user_exists: bool = conn.query_row(
+            "SELECT EXISTS(SELECT 1 FROM users WHERE id = ?1)",
+            [user_id],
+            |row| row.get(0),
+        )?;
+
+        if !user_exists {
+            return Ok(false);
+        }
+
+        let number_of_copies: i32 = conn
+            .query_row(
+                "SELECT number_of_copies FROM books WHERE id = ?1",
+                [book_id],
+                |row| row.get(0),
+            )
+            .or_else(|err| {
+                if let rusqlite::Error::QueryReturnedNoRows = err {
+                    Ok(0)
+                } else {
+                    Err(err)
+                }
+            })?;
+
+        if number_of_copies < 1 {
+            return Ok(false);
+        }
+
+        conn.execute(
+            "INSERT INTO borrowed (user_id, book_id) VALUES (?1, ?2)",
+            [user_id, book_id],
+        )?;
+
+        conn.execute(
+            "UPDATE books SET number_of_copies = number_of_copies - 1 WHERE id = ?1",
+            [book_id],
+        )?;
+
+        Ok(true)
+    }
+
+    pub fn fetch_borrowed_books(&self, user_id: i64) -> SqliteResult<Vec<BorrowedBook>> {
+        let conn = self.connection.lock().unwrap();
+
+        let mut stmt = conn.prepare(
+            "SELECT 
+            br.id, 
+            br.due_date, 
+            b.id, b.title, b.author, b.isbn, b.publication_year, b.genre, b.number_of_copies
+         FROM 
+            borrowed br
+         JOIN 
+            books b ON br.book_id = b.id
+         WHERE 
+            br.user_id = ?1",
+        )?;
+
+        let borrowed_books = stmt
+            .query_map([user_id], |row| {
+                Ok(BorrowedBook {
+                    borrowed_id: row.get(0)?,
+                    due_date: row.get(1)?,
+                    book: Book {
+                        id: row.get(2)?,
+                        title: row.get(3)?,
+                        author: row.get(4)?,
+                        isbn: row.get(5)?,
+                        publication_year: row.get(6)?,
+                        genre: row.get(7)?,
+                        number_of_copies: row.get(8)?,
+                    },
+                })
+            })?
+            .collect::<Result<Vec<_>, _>>()?;
+
+        Ok(borrowed_books)
+    }
+
+    pub fn return_book(&self, borrowed_id: i64, book_id: i64) -> SqliteResult<bool> {
+        let conn = self.connection.lock().unwrap();
+
+        let mut stmt = conn.prepare("SELECT 1 FROM borrowed WHERE id=?")?;
+        let mut rows = stmt.query(params![borrowed_id])?;
+
+        if rows.next()?.is_none() {
+            return Ok(false);
+        }
+
+        conn.execute(
+            "UPDATE books SET number_of_copies = number_of_copies + 1 WHERE id = ?",
+            params![book_id],
+        )?;
+
+        let affected_row = conn.execute("DELETE FROM borrowed WHERE id=?", params![borrowed_id])?;
+        Ok(affected_row > 0)
+    }
+
+    pub fn fetch_all_borrowed_books(&self) -> SqliteResult<Vec<BorrowedBook>> {
+        let conn = self.connection.lock().unwrap();
+
+        let mut stmt = conn.prepare(
+            "SELECT 
+            br.id, 
+            br.due_date, 
+            b.id, b.title, b.author, b.isbn, b.publication_year, b.genre, b.number_of_copies
+         FROM 
+            borrowed br
+         JOIN 
+            books b ON br.book_id = b.id",
+        )?;
+
+        let borrowed_books = stmt
+            .query_map([], |row| {
+                Ok(BorrowedBook {
+                    borrowed_id: row.get(0)?,
+                    due_date: row.get(1)?,
+                    book: Book {
+                        id: row.get(2)?,
+                        title: row.get(3)?,
+                        author: row.get(4)?,
+                        isbn: row.get(5)?,
+                        publication_year: row.get(6)?,
+                        genre: row.get(7)?,
+                        number_of_copies: row.get(8)?,
+                    },
+                })
+            })?
+            .collect::<Result<Vec<_>, _>>()?;
+        Ok(borrowed_books)
     }
 }

@@ -1,26 +1,3 @@
-function editBook(bookDataJson) {
-  localStorage.setItem("editBookData", bookDataJson);
-  window.location.href = "edit_book.html";
-}
-
-async function deleteBook(bookId) {
-  if (!confirm("Are you sure you want to delete this book?")) return;
-
-  try {
-    const response = await fetch(`/api/books/${bookId}`, {
-      method: "DELETE",
-    });
-
-    if (!response.ok) throw new Error("Failed to delete book");
-
-    // Refresh the page after deletion
-    location.reload();
-  } catch (error) {
-    console.error("Delete failed:", error);
-    alert("Failed to delete the book.");
-  }
-}
-
 document.addEventListener("DOMContentLoaded", async () => {
   const container = document.getElementById("books-container");
 
@@ -43,6 +20,48 @@ document.addEventListener("DOMContentLoaded", async () => {
       bookDiv.style.padding = "10px";
       bookDiv.style.marginBottom = "10px";
 
+      // Create the borrow button
+      const borrowButton = document.createElement("button");
+      borrowButton.textContent = "Borrow Book";
+      borrowButton.style.marginTop = "10px";
+      borrowButton.disabled = book.number_of_copies < 1;
+
+      // Borrow click handler
+      borrowButton.addEventListener("click", async () => {
+        const userId = localStorage.getItem("userId");
+
+        if (!userId) {
+          alert("User not logged in.");
+          return;
+        }
+
+        try {
+          const res = await fetch("/api/borrow", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              user_id: parseInt(userId),
+              book_id: book.id,
+            }),
+          });
+
+          const result = await res.json();
+
+          if (res.ok) {
+            alert(result.message || "Book borrowed successfully.");
+            location.reload();
+          } else {
+            alert(result.message || "Could not borrow book.");
+          }
+        } catch (err) {
+          console.error("Error borrowing book:", err);
+          alert("Something went wrong.");
+        }
+      });
+
+
       bookDiv.innerHTML = `
         <span style="font-size:20px;"><strong>${book.title}</strong><br></span>
         Author: ${book.author}<br><br>
@@ -53,10 +72,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         <span style="color: ${book.number_of_copies < 1 ? 'red' : 'green'};">
         ${book.number_of_copies < 1 ? 'Checked Out' : 'Available'}
         </span><br><br>
-        <button onclick="editBook('${encodeURIComponent(JSON.stringify(book))}')">Edit</button>&nbsp;&nbsp;
-        <button onclick="deleteBook(${book.id})">Delete</button>
       `;
 
+      bookDiv.appendChild(borrowButton);
       container.appendChild(bookDiv);
     }
   } catch (error) {
