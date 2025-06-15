@@ -348,6 +348,15 @@ fn handle_connection(mut stream: TcpStream, db: Database) {
                 "application/javascript",
             ),
         },
+        //styles
+        ("GET", "/styles.css") => match fs::read_to_string("frontend/styles.css") {
+            Ok(css_content) => ("HTTP/1.1 200 OK", css_content, "text/css"),
+            Err(_) => (
+                "HTTP/1.1 404 NOT FOUND",
+                "/* CSS file not found */".to_string(),
+                "text/css",
+            ),
+        },
         //default case
         _ => (
             "HTTP/1.1 404 NOT FOUND",

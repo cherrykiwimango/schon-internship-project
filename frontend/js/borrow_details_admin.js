@@ -22,8 +22,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       const bookDiv = document.createElement("div");
       bookDiv.style.border = "1px solid #ccc";
-      bookDiv.style.padding = "10px";
+      bookDiv.style.padding = "10px 30px";
       bookDiv.style.marginBottom = "10px";
+      bookDiv.style.borderRadius = "5px";
 
       bookDiv.innerHTML = `
         <span style="font-size:20px;"><strong>${book.book.title}</strong><br></span>

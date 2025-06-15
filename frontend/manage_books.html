@@ -3,22 +3,27 @@
 
 <head>
   <title>Manage Books</title>
+  <link rel="stylesheet" href="styles.css">
   <script src="js/auth.js"></script>
 </head>
 
-<body>
+<body class="grid-page">
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       protectAdminRoute();
     });
   </script>
-  <h1>Manage Books</h1>
-  <div id="books-container"></div>
-  <a href="create_book.html">Add New Book</a>
-  <br><br>
-  <a href="admin_dashboard.html">
-    <button>Back to Dashboard</button>
-  </a>
+  <div>
+    <h1 style="margin-bottom: 20px;">Manage Books</h1>
+    <a href="create_book.html" class="button-link">Add New Book</a>
+    <div id="books-container" class="books-container"></div>
+
+    <br><br>
+    <a href="admin_dashboard.html">
+      <button>Back to Dashboard</button>
+    </a>
+  </div>
+
   <script src="js/manage_books.js"></script>
 </body>
 

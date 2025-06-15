@@ -3,10 +3,11 @@
 
 <head>
   <title>Dashboard</title>
+  <link rel="stylesheet" href="styles.css">
   <script src="js/auth.js"></script>
 </head>
 
-<body>
+<body class="centered-page">
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       protectUserRoute();
@@ -20,12 +21,19 @@
       }
     });
   </script>
-  <h1 id="welcomeMessage">Welcome</h1>
-  <p>This is the user dashboard</p>
-  <a href="browse_books.html">Browse Books</a>
-  <a href="borrow_details.html">Borrow Details</a>
-  <br><br>
-  <button onclick="logout()">Logout</button>
+  <div class="centered-div">
+    <div class="text-div">
+      <h1 id="welcomeMessage">Welcome</h1>
+      <p>This is the user dashboard</p>
+    </div>
+    <div>
+      <a href="browse_books.html" class="button-link">Browse Books</a>
+      <a href="borrow_details.html" class="button-link">Borrow Details</a>
+    </div>
+    <br><br>
+    <button onclick="logout()">Logout</button>
+  </div>
+
 </body>
 
 </html>

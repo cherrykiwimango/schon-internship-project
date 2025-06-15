@@ -17,8 +17,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     for (const book of books) {
       const bookDiv = document.createElement("div");
       bookDiv.style.border = "1px solid #ccc";
-      bookDiv.style.padding = "10px";
+      bookDiv.style.padding = "10px 30px";
       bookDiv.style.marginBottom = "10px";
+      bookDiv.style.borderRadius = "5px";
 
       // Create the borrow button
       const borrowButton = document.createElement("button");

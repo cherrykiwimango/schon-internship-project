@@ -3,21 +3,25 @@
 
 <head>
   <title>Borrow Details</title>
+  <link rel="stylesheet" href="styles.css">
   <script src="js/auth.js"></script>
 </head>
 
-<body>
+<body class="grid-page">
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       protectUserRoute();
     });
   </script>
-  <h1>Borrow Details</h1>
-  <div id="books-container"></div>
-  <br><br>
-  <a href="dashboard.html">
-    <button>Back to Dashboard</button>
-  </a>
+  <div>
+    <h1 style="margin-bottom: 20px;">Borrow Details</h1>
+    <div id="books-container" class="books-container"></div>
+    <br><br>
+    <a href="dashboard.html">
+      <button>Back to Dashboard</button>
+    </a>
+  </div>
+
   <script src="js/borrow_details.js"></script>
 </body>
 

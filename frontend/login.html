@@ -3,29 +3,34 @@
 
 <head>
   <title>Login</title>
+  <link rel="stylesheet" href="styles.css">
   <script src="js/auth.js"></script>
 </head>
 
-<body>
+<body class="centered-page">
   <script>
     // Check if user is already logged in when page loads
     document.addEventListener('DOMContentLoaded', function () {
       redirectIfAuthenticated();
     });
   </script>
-  <h1>Login</h1>
-  <p>Don't have an account yet? <a href="signup.html">Sign up</a></p>
-  <form>
-    <div>
-      <label>Username</label>
-      <input type="text" name="username" placeholder="Enter username" />
+  <div class="centered-div">
+    <div class="text-div">
+      <h1>Login</h1>
+      <p>Don't have an account yet? <a href="signup.html">Sign up</a></p>
     </div>
-    <div>
-      <label>Password</label>
-      <input type="password" name="password" placeholder="Enter password" />
-    </div>
-    <button type="submit">Log In</button>
-  </form>
+    <form>
+      <div class="form-div">
+        <label>Username</label>
+        <input type="text" name="username" placeholder="Enter username" />
+      </div>
+      <div class="form-div">
+        <label>Password</label>
+        <input type="password" name="password" placeholder="Enter password" />
+      </div>
+      <button type="submit" style="margin-top: 20px;">Login</button>
+    </form>
+  </div>
   <script src="js/login.js"></script>
 </body>
 

@@ -3,22 +3,27 @@
 
 <head>
   <title>Signup</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 
-<body>
-  <h1>Signup</h1>
-  <p>Already have an account? <a href="login.html" class="login-link">Log In</a></p>
-  <form>
-    <div>
-      <label>Username</label>
-      <input type="text" name="username" placeholder="Enter username" />
+<body class="centered-page">
+  <div class="centered-div">
+    <div class="text-div">
+      <h1>Signup</h1>
+      <p>Already have an account? <a href="login.html" class="login-link">Log In</a></p>
     </div>
-    <div>
-      <label>Password</label>
-      <input type="password" name="password" placeholder="Enter password" />
-    </div>
-    <button type="submit">Sign Up</button>
-  </form>
+    <form>
+      <div class="form-div">
+        <label>Username</label>
+        <input type="text" name="username" placeholder="Enter username" />
+      </div>
+      <div class="form-div">
+        <label>Password</label>
+        <input type="password" name="password" placeholder="Enter password" />
+      </div>
+      <button type="submit" style="margin-top: 20px;">Signup</button>
+    </form>
+  </div>
   <script src="js/signup.js"></script>
 </body>
 

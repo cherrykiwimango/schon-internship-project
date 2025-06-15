@@ -3,23 +3,27 @@
 
 <head>
   <title>Users</title>
+  <link rel="stylesheet" href="styles.css">
   <script src="js/auth.js"></script>
 </head>
 
-<body>
+<body class="centered-page">
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       protectAdminRoute();
     });
   </script>
-  <h1>List of Users</h1>
-  <div id="users-list">
+  <div>
+    <h1>List of Users</h1>
+    <div id="users-list">
 
+    </div>
+    <br><br>
+    <a href="admin_dashboard.html">
+      <button style="width: 100%;">Back to Dashboard</button>
+    </a>
   </div>
-  <br><br>
-  <a href="admin_dashboard.html">
-    <button>Back to Dashboard</button>
-  </a>
+
   <script src="js/users.js"></script>
 </body>
 

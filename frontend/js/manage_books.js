@@ -40,8 +40,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     for (const book of books) {
       const bookDiv = document.createElement("div");
       bookDiv.style.border = "1px solid #ccc";
-      bookDiv.style.padding = "10px";
+      bookDiv.style.padding = "10px 30px";
       bookDiv.style.marginBottom = "10px";
+      bookDiv.style.borderRadius = "5px";
 
       bookDiv.innerHTML = `
         <span style="font-size:20px;"><strong>${book.title}</strong><br></span>
@@ -53,8 +54,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         <span style="color: ${book.number_of_copies < 1 ? 'red' : 'green'};">
         ${book.number_of_copies < 1 ? 'Checked Out' : 'Available'}
         </span><br><br>
-        <button onclick="editBook('${encodeURIComponent(JSON.stringify(book))}')">Edit</button>&nbsp;&nbsp;
-        <button onclick="deleteBook(${book.id})">Delete</button>
+        <div style="display: flex; gap: 10px;">
+          <button onclick="editBook('${encodeURIComponent(JSON.stringify(book))}')">Edit</button>
+          <button onclick="deleteBook(${book.id})" style="background-color: rgb(255, 182, 182);">Delete</button>
+        </div>
       `;
 
       container.appendChild(bookDiv);

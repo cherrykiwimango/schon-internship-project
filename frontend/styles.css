@@ -1,0 +1,109 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.centered-div * {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+body.grid-page {
+  font-family: monospace;
+  padding: 20px;
+  min-height: 100vh;
+}
+
+body.centered-page {
+  font-family: monospace;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.centered-div {
+  padding: 40px;
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+button {
+  margin-top: 20px;
+  padding: 10px 10px;
+  font-size: 16px;
+  border-radius: 5px;
+  border: 1px solid gray;
+  font-family: monospace;
+  background-color: rgb(195, 216, 255);
+  width: 50%;
+  transition: background-color 0.15s;
+  display: inline-block;
+}
+
+button:hover {
+  background-color: rgb(156, 189, 255);
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.text-div {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+input {
+  padding: 10px 10px;
+  border-radius: 5px;
+  border-color: rgb(207, 207, 207);
+  border-style: solid;
+  border-width: 1px;
+  font-family: monospace;
+  width: 100%;
+}
+
+.form-div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.button-link {
+  display: inline-block;
+  padding: 20px 20px;
+  text-decoration: none;
+  border-radius: 4px;
+  text-align: center;
+  border: 1px solid gray;
+  color: black;
+  transition: background-color 0.15s;
+}
+
+.button-link:hover {
+  background-color: rgb(255, 255, 162);
+}
+
+.a-container {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+}
+
+.books-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  padding: 20px;
+  justify-content: center;
+}
