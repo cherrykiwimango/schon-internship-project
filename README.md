@@ -9,6 +9,10 @@
 
 A full-stack library management system built with Rust backend and vanilla HTML/CSS/JavaScript frontend. Features user authentication, role-based access control, and complete book management functionality.
 
+## 🎥 Demo Video
+
+https://github.com/user-attachments/assets/1fce1ca4-89d2-4e54-9a99-4d22fb625ea6
+
 
 ## 🚀 Features
 
@@ -17,17 +21,26 @@ A full-stack library management system built with Rust backend and vanilla HTML/
 - Password hashing for secure storage
 - JWT-based authentication for protected routes
 - Role-based access control (Admin/User)
+  
+![login_schon](https://github.com/user-attachments/assets/28c5cafe-a07c-41da-97a0-84fdc553db9d)
+
 
 ### Admin Features
 - **Book Management**: Complete CRUD operations for books
 - **User Management**: View all registered users
 - **Borrow Tracking**: Monitor all borrowed books and due dates
+  
+![manage_books_schon](https://github.com/user-attachments/assets/784dfdd9-880a-44ca-9f02-17c0a1596e08)
+
 
 ### User Features
 - **Book Browsing**: View available books in the library
 - **Book Borrowing**: Borrow available books (7-day loan period)
 - **Book Returning**: Return borrowed books
 - **Personal Library**: View personal borrowing history
+  
+![browse_schon](https://github.com/user-attachments/assets/e6bdca13-8aaa-4143-bae0-f149958b9e40)
+
 
 ### Technical Features
 - **Custom Multithreaded Server**: Built from scratch using Rust following The Rust Book
@@ -53,8 +66,8 @@ A full-stack library management system built with Rust backend and vanilla HTML/
 
 ### 1. Clone the Repository
 ```bash
-git clone <your-repository-url>
-cd library-management-system
+git clone https://github.com/cherrykiwimango/schon-internship-project
+cd project
 ```
 ### 2. Run the Application
 ```bash
@@ -63,7 +76,7 @@ cargo run
 The server will start on http://localhost:7878
 ### 3. Access the Application
 #### Set Up Environment Variables
-Create a `.env` file in the root directory and add your JWT secret key:
+Create a `.env` file in the root directory (project/.env) and add your JWT secret key:
 ```env
 JWT_SECRET=super-safe-secret-key-which-is-super-duper-safe
 ```
