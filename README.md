@@ -62,13 +62,27 @@ cargo run
 ```
 The server will start on http://localhost:7878
 ### 3. Access the Application
-
+#### Set Up Environment Variables
+Create a `.env` file in the root directory and add your JWT secret key:
+```env
+JWT_SECRET=super-safe-secret-key-which-is-super-duper-safe
+```
 - **Login Page**: http://localhost:7878/login.html
 - **Dashboard**: http://localhost:7878/dashboard.html (after login)
 - **Admin Dashboard**: http://localhost:7878/admin_dashboard.html (after login)
+#### Test Accounts
+
+Admin Access:
+- `Username: Admin`
+- `Password: 123456`
 
 
-- Note: The application automatically creates the SQLite database (project.db) on first run.
+User Access:
+- `Username: allen`
+- `Password: 123456`
+
+  
+#### Note: The application automatically creates the SQLite database (project.db) on first run.
 
 ## 📚 API Documentation
 ### Authentication Endpoints
