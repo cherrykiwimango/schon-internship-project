@@ -7,40 +7,43 @@
   <script src="js/auth.js"></script>
 </head>
 
-<body>
+<body class="centered-page">
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       protectAdminRoute();
     });
   </script>
-  <h1>Edit Book</h1>
-  <form>
-    <div>
-      <label>Book Title</label>
-      <input type="text" name="title" placeholder="Enter book title" />
-    </div>
-    <div>
-      <label>Book Author</label>
-      <input type="text" name="author" placeholder="Enter book author" />
-    </div>
-    <div>
-      <label>ISBN</label>
-      <input type="text" name="isbn" placeholder="Enter ISBN" />
-    </div>
-    <div>
-      <label>Publication Year</label>
-      <input type="text" name="year" placeholder="Enter publication year" />
-    </div>
-    <div>
-      <label>Genre</label>
-      <input type="text" name="genre" placeholder="Enter genre" />
-    </div>
-    <div>
-      <label>Number of Copies</label>
-      <input type="number" name="copies" placeholder="Enter number of copies" />
-    </div>
-    <button type="submit">Update changes</button>
-  </form>
+  <div class="centered-div">
+    <h1>Edit Book</h1>
+    <form>
+      <div>
+        <label>Book Title</label>
+        <input type="text" name="title" placeholder="Enter book title" />
+      </div>
+      <div>
+        <label>Book Author</label>
+        <input type="text" name="author" placeholder="Enter book author" />
+      </div>
+      <div>
+        <label>ISBN</label>
+        <input type="text" name="isbn" placeholder="Enter ISBN" />
+      </div>
+      <div>
+        <label>Publication Year</label>
+        <input type="text" name="year" placeholder="Enter publication year" />
+      </div>
+      <div>
+        <label>Genre</label>
+        <input type="text" name="genre" placeholder="Enter genre" />
+      </div>
+      <div>
+        <label>Number of Copies</label>
+        <input type="number" name="copies" placeholder="Enter number of copies" />
+      </div>
+      <button type="submit" style="margin-top: 20px;">Update changes</button>
+    </form>
+  </div>
+
   <script src="js/edit_book.js"></script>
 </body>
 
